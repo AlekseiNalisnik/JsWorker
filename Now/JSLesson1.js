@@ -28,10 +28,27 @@ console.log(typeof(null));
 
 
 
-//alert, config, prompt
+//alert, confirm, prompt
 
 
-    let isChecked = true,
-        isClosed = false;
+var money = "Ваш бюджет на месяц",
+    time = "Введите дату в формате YYYY-MM-DD";
 
-    console.log(!isChecked || isClosed);
+var answer1 = prompt("Введите обязательную статью расходов в этом месяце!"),
+    answer2 = prompt("Во сколько обойдётся?");
+
+console.log(answer2);
+
+var appData = { 
+    money: "Ваш бюджет на месяц",
+    time: "Введите дату в формате YYYY-MM-DD",
+    expenses: {
+        answer1: answer2,
+    },
+    optionalExpenses: {},
+    income: [], 
+    savings: false };
+
+let brow = alert(appData.expenses.answer1 / 30);
+
+console.log(brow);
