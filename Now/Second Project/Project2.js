@@ -5,28 +5,30 @@ window.addEventListener('DOMContentLoaded', function() {
         info = document.querySelector('.info-header'),
         tabContent = document.querySelectorAll('.info-tabcontent');
 
-    function hideTabContent(a) {
-        for(let i = a; i < tabContent.length; i++) {
-            tabContent[i].classList.remove('show');
-            tabContent[i].classList.add('hide');
+    class Tabs {
+        hideTabContent(a) {
+            for(let i = a; i < tabContent.length; i++) {
+                tabContent[i].classList.remove('show');
+                tabContent[i].classList.add('hide');
+            }
+        }
+        showTabContent(b) {
+            if(tabContent[b].classList.contains('hide')) {
+                tabContent[b].classList.remove('hide');
+                tabContent[b].classList.add('show');
+            }
         }
     }
-    hideTabContent(1);
-
-    function showTabContent(b) {
-        if(tabContent[b].classList.contains('hide')) {
-            tabContent[b].classList.remove('hide');
-            tabContent[b].classList.add('show');
-        }
-    }
+    let tabs = new Tabs();
+    tabs.hideTabContent(1);
 
     info.addEventListener('click', function(event) {
         let target = event.target;
         if(target && target.classList.contains('info-header-tab')) {
             for(let i = 0; i < tab.length; i++) {
                 if(target == tab[i]) {
-                    hideTabContent(0);
-                    showTabContent(i);
+                    tabs.hideTabContent(0);
+                    tabs.showTabContent(i);
                     break;
                 }
             }
@@ -35,15 +37,15 @@ window.addEventListener('DOMContentLoaded', function() {
 
     //Timer
 
-    let deadline = '2019-08-11';
-
+    let deadline = '2019-08-19';
+    
     function getTimeRemaining(endtime) {
         // parse() превращает любую дату в количество миллисекунд  new Date() - дата прямо сейчас
         let t = Date.parse(endtime) - Date.parse(new Date()),
             seconds = Math.floor((t / 1000) % 60),
             minutes = Math.floor((t / 1000 / 60) % 60),
             hours = Math.floor((t / (1000 * 60 * 60)));
-        
+
         return {
             'total': t,
             'hours': hours,
@@ -79,7 +81,6 @@ window.addEventListener('DOMContentLoaded', function() {
             }
         }
     }
-
     setClock('timer', deadline);
 
     //MODAL
@@ -109,4 +110,105 @@ window.addEventListener('DOMContentLoaded', function() {
             document.body.style.overflow = 'hidden';
         }
     });
+
+    //Form
+
+    let message = {
+        loading: 'Загрузка...',
+        success: 'Спасибо! Скоро мы с вами свяжемся!',
+        failure: 'Что-то пошло не так...'
+    };
+
+    let form = document.querySelector('.main-form'),
+        input = form.getElementsByTagName('input'),
+        statusMessage = document.createElement('div');
+
+    statusMessage.classList.add('status');
+    form.addEventListener('submit', function(event) {
+        event.preventDefault();
+        form.appendChild(statusMessage);
+
+        let request = new XMLHttpRequest();
+        request.open('POST', 'C:/Users/Мария/Desktop/JS/Now/Second/Project/server.php');
+        request.setRequestHeader('Content-type', 'application/json; charset=utf-8'); 
+
+        let formData = new FormData(form);
+
+        let obj = {};
+        formData.forEach(function(value, key) {
+            obj[key] = value;
+        }); // превращение формДана в Джесон
+        let json = JSON.stringify(obj);
+
+        request.send(json);
+
+        request.addEventListener('readystatechange', function() {
+            if(request.readyState < 4) {
+                statusMessage.innerHTML = message.loading;
+            } else if(request.readyState === 4 && request.status === 200) {
+                statusMessage.innerHTML = message.success;
+            } else {
+                statusMessage.innerHTML = message.failure;
+            }
+        });
+
+        for(let i = 0; i < input.length; i++) {
+            input[i].value = '';
+        }
+    });
+
+
+    // SLIDER
+
+    let slideIndex = 1,
+        slides = document.querySelectorAll('.slider-item'),
+        prev = document.querySelector('.prev'),
+        next = document.querySelector('.next'),
+        dotsWrap = document.querySelector('.slider-dots'),
+        dots = document.querySelectorAll('.dot');
+
+    showSlides(slideIndex);
+    function showSlides(n) {
+
+        if(n > slides.length) {
+            slideIndex = 1;
+        }
+        if(n < 1) {
+            slideIndex = slides.length;
+        }
+
+        slides.forEach((item) => item.style.display = 'none');
+        // for(let i = 0; i < slides.length; i++) {
+        //     slides[i].style.display = 'none';
+        // }
+        dots.forEach((item) => item.classList.remove('dot-active'));
+
+        slides[slideIndex - 1].style.display = 'block';
+        dots[slideIndex - 1].classList.add('dot-active');
+    }
+
+    function plusSlides(n) {
+        showSlides(slideIndex += n);
+    }
+
+    function currentSlide(n) {
+        showSlides(slideIndex = n);
+    }
+
+    prev.addEventListener('click', function() {
+        plusSlides(-1);
+    });
+
+    next.addEventListener('click', function() {
+        plusSlides(1);
+    });
+
+    dotsWrap.addEventListener('click', function(event) {
+        for(let i = 0; i < dots.length + 1; i++) {
+            if(event.target.classList.contains('dot') && event.target == dots[i - 1]) {
+                currentSlide(i);
+            }
+        }
+    });
+
 });
